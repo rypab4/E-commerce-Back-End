@@ -6,20 +6,28 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // get all products
 router.get('/', (req, res) => {
   // find all products
-  Product.findAll({
   // be sure to include its associated Category and Tag data
-  include: [
-    {
-      model: Category,
-      attributes: ['id', 'category_name']
-    },
-    {
-      model: Tag,
-      attributes: ['id', 'tag_name']
-    }
-  ]
-})
-  .then(dbProductData => res.json(dbProductData))
+  Product.findAll({
+    attributes: [
+      'id',
+      'product_name',
+      'price',
+      'stock'
+    ],
+    include: [
+      {
+        model: Category,
+        attributes: ['id', 'category_name']
+      },
+      {
+        model: Tag,
+        attributes: ['tag_name'],
+        through: ProductTag,
+        as: 'tags'
+      }
+    ]
+  })
+  .then(dbUserData => res.json(dbUserData))
   .catch(err => {
     console.log(err);
     res.status(500).json(err);
@@ -31,10 +39,15 @@ router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
   Product.findOne({
+    attributes: [
+      'id',
+      'product_name',
+      'price',
+      'stock'
+    ],
     where: {
       id: req.params.id
     },
-    // be sure to include its associated Products
     include: [
       {
         model: Category,
@@ -42,22 +55,19 @@ router.get('/:id', (req, res) => {
       },
       {
         model: Tag,
-        attributes: ['id', 'tag_name']
+        attributes: ['tag_name'],
+        through: ProductTag,
+        as: 'tags'
       }
     ]
   })
-  .then(dbProductData => {
-    if (!dbProductData) {
-      res.status(404).json({ message: 'No product found with this id' });
-      return;
-    }
-    res.json(dbProductData);
-  })
+  .then(dbProductData => res.json(dbProductData))
   .catch(err => {
     console.log(err);
     res.status(500).json(err);
   });
 });
+
 // create new product
 router.post('/', (req, res) => {
   /* req.body should look like this...
@@ -73,7 +83,7 @@ router.post('/', (req, res) => {
     price: req.body.price,
     stock: req.body.stock,
     category_id: req.body.category_id,
-    tagIds: req.body.tagIds
+    tagIds: req.body.tag_Ids
   })
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
@@ -86,24 +96,34 @@ router.post('/', (req, res) => {
         });
         return ProductTag.bulkCreate(productTagIdArr);
       }
-      // if no product tags, just respond
-      res.status(200).json(product);
+      else {
+       // if no product tags, just respond
+      return res.status(200).json(product); }
     })
     .then((productTagIds) => res.status(200).json(productTagIds))
     .catch((err) => {
       console.log(err);
       res.status(400).json(err);
-    });
-});
+    })
+  });
 
 // update product
 router.put('/:id', (req, res) => {
   // update product data
-  Product.update(req.body, {
+  Product.update(
+    {
+      product_name: req.body.product_name,
+      price: req.body.price,
+      stock: req.body.stock,
+      category_id: req.body.category_id,
+      tag_Ids: req.body.tag_Ids
+    },
+    {
     where: {
       id: req.params.id,
     },
-  })
+   }
+  )
     .then((product) => {
       // find all associated tags from ProductTag
       return ProductTag.findAll({ where: { product_id: req.params.id } });
@@ -156,5 +176,6 @@ router.delete('/:id', (req, res) => {
       res.status(500).json(err);
     });
 });
+
 
 module.exports = router;
