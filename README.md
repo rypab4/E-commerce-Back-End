@@ -25,7 +25,7 @@ This is the back end for an ecommerce. They can create a database that will keep
 ## Links
 
 Video Walkthrough: https://drive.google.com/file/d/1ppSM0Op7UfFgdwyJItJ5fxnlMo2o9m0a/view
-Github: git@github.com:rypab4/Note-Taker.git 
+Github: https://github.com/rypab4/E-commerce-Back-End.git. 
 
 ## Installations 
 
