@@ -15,9 +15,9 @@ Tag.init(
     },
     tag_name: {
       type: DataTypes.STRING,
-      validate: {
-        len: [1]
-      }
+      // validate: {
+      //   len: [1]
+      // }
     },
   },
   {
