@@ -1,8 +1,5 @@
 # E-commerce-Back-End
 
-
-# Note-Taker
-
 ## Description
 This is the back end for an ecommerce. They can create a database that will keep track of categories, products and tags associated with products.
 
